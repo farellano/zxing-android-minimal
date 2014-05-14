@@ -93,8 +93,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private CaptureActivityHandler handler;
   private Result savedResultToShow;
   private ViewfinderView viewfinderView;
-  private TextView statusView;
-  private View resultView;
   private Result lastResult;
   private boolean hasSurface;
   private IntentSource source;
@@ -149,9 +147,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
     viewfinderView.setCameraManager(cameraManager);
 
-    resultView = findViewById(R.id.result_view);
-    statusView = (TextView) findViewById(R.id.status_view);
-
     handler = null;
     lastResult = null;
 
@@ -200,11 +195,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
           if (width > 0 && height > 0) {
             cameraManager.setManualFramingRect(width, height);
           }
-        }
-        
-        String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
-        if (customPromptMessage != null) {
-          statusView.setText(customPromptMessage);
         }
 
       } else if (dataString != null &&
@@ -536,10 +526,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   }
 
   private void resetStatusView() {
-    resultView.setVisibility(View.GONE);
-    statusView.setText(R.string.msg_default_status);
-    statusView.setVisibility(View.VISIBLE);
-    viewfinderView.setVisibility(View.VISIBLE);
     lastResult = null;
   }
 
