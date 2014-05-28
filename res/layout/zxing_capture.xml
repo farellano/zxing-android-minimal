@@ -107,12 +107,14 @@
         android:orientation="vertical"
         android:layout_gravity="bottom|center">
         <Button
+            android:id="@+id/button_verify"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_confirm"
             android:text="VERIFY"
             android:layout_gravity="center"
-            android:layout_marginBottom="5dp"/>
+            android:layout_marginBottom="5dp"
+            android:onClick="startButtonClick"/>
 
         <LinearLayout
             android:layout_width="match_parent"
