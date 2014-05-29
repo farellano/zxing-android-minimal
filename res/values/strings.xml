@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="number_of_seats">%s seats</string>
+    <string name="verified_seats">%s verified /</string>
+</resources>

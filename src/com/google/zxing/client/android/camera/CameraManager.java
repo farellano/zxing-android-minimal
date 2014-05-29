@@ -141,6 +141,7 @@ public final class CameraManager {
   public synchronized void startPreview() {
     Camera theCamera = camera;
     if (theCamera != null && !previewing) {
+        theCamera.setDisplayOrientation(90);
       theCamera.startPreview();
       previewing = true;
       autoFocusManager = new AutoFocusManager(context, camera);

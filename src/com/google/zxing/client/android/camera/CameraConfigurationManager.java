@@ -45,7 +45,7 @@ final class CameraConfigurationManager {
   // below will still select the default (presumably 320x240) size for these. This prevents
   // accidental selection of very low resolution on some devices.
   private static final int MIN_PREVIEW_PIXELS = 470 * 320; // normal screen
-  private static final int MAX_PREVIEW_PIXELS = 1280 * 800;
+  private static final int MAX_PREVIEW_PIXELS = 1920 * 1080;
 
   private final Context context;
   private Point screenResolution;
@@ -62,11 +62,10 @@ final class CameraConfigurationManager {
     Camera.Parameters parameters = camera.getParameters();
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = manager.getDefaultDisplay();
-    int width = display.getWidth();
-    int height = display.getHeight();
+    screenResolution = new Point();
+    display.getSize(screenResolution);
     // We're landscape-only, and have apparently seen issues with display thinking it's portrait 
     // when waking from sleep. If it's not landscape, assume it's mistaken and reverse them:
-    screenResolution = new Point(width, height);
     Log.i(TAG, "Screen resolution: " + screenResolution);
     cameraResolution = findBestPreviewSizeValue(parameters, screenResolution);
     Log.i(TAG, "Camera resolution: " + cameraResolution);
@@ -218,7 +217,7 @@ final class CameraConfigurationManager {
     }
 
     Point bestSize = null;
-    float screenAspectRatio = (float) screenResolution.x / (float) screenResolution.y;
+    float screenAspectRatio = (float) screenResolution.y / (float) screenResolution.x;
 
     float diff = Float.POSITIVE_INFINITY;
     for (Camera.Size supportedPreviewSize : supportedPreviewSizes) {

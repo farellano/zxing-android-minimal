@@ -89,11 +89,13 @@
             android:orientation="vertical"
             android:layout_marginLeft="15dp">
             <TextView
+                android:id="@+id/zxing_capture_textview_veriried_seats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0 verified /"
                 android:textSize="25sp"/>
             <TextView
+                android:id="@+id/zxing_capture_textview_seats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="750 seats"
@@ -108,6 +110,7 @@
             android:layout_marginRight="20dp">
 
             <LinearLayout
+                android:id="@+id/zxing_capture_button_plus_seat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#FFFFFF"
@@ -129,6 +132,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/zxing_capture_button_minus_seat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#FFFFFF"
@@ -193,4 +197,23 @@
             android:background="@drawable/bg_back_button"/>
     </LinearLayout>
 
+
+    <com.google.zxing.views.ScanResultLayout
+        android:id="@+id/zxing_capture_layout_scan_result"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:alpha="0.8"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ico_full"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Error Message"/>
+    </com.google.zxing.views.ScanResultLayout>
+    
 </RelativeLayout>
