@@ -14,125 +14,183 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="fill_parent"
-             android:layout_height="fill_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
-  <SurfaceView android:id="@+id/preview_view"
-               android:layout_width="fill_parent"
-               android:layout_height="fill_parent"/>
+    <SurfaceView android:id="@+id/preview_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
 
-  <com.google.zxing.client.android.ViewfinderView
-      android:id="@+id/viewfinder_view"
-      android:layout_width="fill_parent"
-      android:layout_height="fill_parent"
-      android:visibility="gone"/>
+    <com.google.zxing.client.android.ViewfinderView
+        android:id="@+id/viewfinder_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone"/>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="15dp">
-        <TextView
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/zxing_capture_header"
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:background="@android:color/transparent"
+        android:layout_height="65dp">
+
+        <ImageView
+            android:src="@drawable/ico_ticktbox_logo"
+            android:adjustViewBounds="true"
+            android:layout_margin="5dp"
+            android:padding="8dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0 verified /"
-            android:textSize="25sp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="750 seats"
-            android:textSize="15sp"/>
-    </LinearLayout>
-
-    <LinearLayout android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:orientation="vertical"
-        android:layout_marginRight="20dp">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:layout_margin="5dp">
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:src="@drawable/btn_add_ticket"
-                android:background="@null"
-                android:layout_gravity="center"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="          1       "
-                android:layout_gravity="center"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:layout_margin="5dp">
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:src="@drawable/btn_remove_ticket"
-                android:background="@null"
-                android:layout_gravity="center"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="          1       "
-                android:layout_gravity="center"/>
-
-        </LinearLayout>
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ico_scan"
-        android:layout_gravity="center"/>
 
-    <LinearLayout
+    <view
+        class="com.google.zxing.widgets.MultiDirectionSlidingDrawer"
+        xmlns:my="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/drawer"
+        my:direction="topToBottom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="bottom|center">
+        android:layout_height="260dp"
+        my:handle="@+id/handle"
+        my:content="@+id/content">
+        <include android:id="@id/content"
+            layout="@layout/top_panel_capture" />
+        <LinearLayout
+            android:id="@id/handle"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@android:color/white"
+            android:paddingRight="8dp"
+            android:gravity="right"
+            >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="65dp"/>
+
+        </LinearLayout>
+
+    </view>
+
+
+
+    <RelativeLayout
+        android:id="@+id/zxing_capture_content"
+        android:layout_above="@+id/zxing_capture_footer"
+        android:layout_below="@id/zxing_capture_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="15dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 verified /"
+                android:textSize="25sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="750 seats"
+                android:textSize="15sp"/>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:orientation="vertical"
+            android:layout_marginRight="20dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:layout_margin="5dp">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:src="@drawable/btn_add_ticket"
+                    android:background="@null"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="          1       "
+                    android:layout_gravity="center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:layout_margin="5dp">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:src="@drawable/btn_remove_ticket"
+                    android:background="@null"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="          1       "
+                    android:layout_gravity="center"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ico_scan"/>
+
+
         <Button
+            android:id="@+id/button_verify"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_confirm"
             android:text="VERIFY"
-            android:layout_gravity="center"
-            android:layout_marginBottom="5dp"/>
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:onClick="startButtonClick"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/zxing_capture_footer"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:text="GO BACK"
+            android:background="@drawable/bg_back_button"/>
 
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="GO BACK"
-                android:background="@drawable/bg_back_button"/>
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="I'M DONE"
-                android:background="@drawable/bg_back_button"/>
-        </LinearLayout>
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="I'M DONE"
+            android:background="@drawable/bg_back_button"/>
     </LinearLayout>
 
-</FrameLayout>
+</RelativeLayout>
