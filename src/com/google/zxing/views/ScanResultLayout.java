@@ -19,6 +19,7 @@ public class ScanResultLayout extends LinearLayout {
     public enum SCAN_RESULT{
         VALID,
         INVALID,
+        USED,
         FULL
     }
 
@@ -59,17 +60,22 @@ public class ScanResultLayout extends LinearLayout {
             case VALID:
                 setBackgroundColor(getResources().getColor(R.color.color_verified));
                 imageView.setImageResource(R.drawable.ico_verified);
-                textView.setText("Verified");
+                textView.setText("VERIFIED");
                 break;
             case INVALID:
                 setBackgroundColor(getResources().getColor(R.color.color_invalid));
                 imageView.setImageResource(R.drawable.ico_used);
-                textView.setText("Invalid");
+                textView.setText("INVALID");
+                break;
+            case USED:
+                setBackgroundColor(getResources().getColor(R.color.color_full));
+                imageView.setImageResource(R.drawable.ico_used);
+                textView.setText("USED");
                 break;
             case FULL:
                 setBackgroundColor(getResources().getColor(R.color.color_full));
                 imageView.setImageResource(R.drawable.ico_full);
-                textView.setText("Verified");
+                textView.setText("FULL");
                 break;
         }
         this.setVisibility(View.VISIBLE);

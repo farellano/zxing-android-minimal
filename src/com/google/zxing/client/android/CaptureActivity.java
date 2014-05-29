@@ -21,14 +21,18 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
 import com.google.zxing.views.ScanResultLayout;
+import com.ticktbox.ticktBoxAPI.api.TicktBoxAPI;
 import com.ticktbox.ticktBoxAPI.api.models.EventTheater;
+import com.ticktbox.ticktBoxAPI.api.models.Pass;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -38,6 +42,10 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -53,7 +61,9 @@ import java.util.Map;
  */
 public final class CaptureActivity extends Activity implements SurfaceHolder.Callback {
 
-    enum CAMERA_STATE {
+    private static final String TAG = CaptureActivity.class.getSimpleName();
+
+    private enum CAMERA_STATE {
         STOPPED,
         RUNNING
     }
@@ -61,8 +71,37 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     public static final String EVENT = "event";
     private EventTheater event;
 
-    private static final String TAG = CaptureActivity.class.getSimpleName();
 
+    private Pass currentPass;
+    private int manualPasses = 0;
+
+    private Button buttonVerify;
+    private TextView textViewVerifiedSeats;
+    private TextView textViewSeats;
+    private LinearLayout buttonPlusSeat;
+    private LinearLayout buttonMinusSeat;
+
+    private CAMERA_STATE camera_state = CAMERA_STATE.STOPPED;
+    ScanResultLayout scanResultLayout;
+
+    // This is the interval time for update the available seats number.
+    private static final int UPDATING_TIME = 3000;
+    private boolean UPDATING_SEATS = false;
+    private UpdateSeatsTasks updateSeatsTasks = new UpdateSeatsTasks();
+    private Handler mHandlerUpdateSeats = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            EventTheater updatedEvent = (EventTheater) msg.getData().getParcelable(EVENT);
+            if (updatedEvent != null){
+                event = updatedEvent;
+                textViewVerifiedSeats.setText(String.format(getString(R.string.verified_seats),event.getUsed_seats()));
+            }
+        }
+    };
+
+    private AddManualPassTask addManualPassTask;
+    private MinusManualPassTask minusManualPassTask;
 
     private CameraManager cameraManager;
     private CaptureActivityHandler handler;
@@ -75,9 +114,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private InactivityTimer inactivityTimer;
     private BeepManager beepManager;
     private AmbientLightManager ambientLightManager;
-    private Button buttonVerify;
-
-    private CAMERA_STATE camera_state = CAMERA_STATE.STOPPED;
 
     ViewfinderView getViewfinderView() {
       return viewfinderView;
@@ -91,106 +127,123 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       return cameraManager;
     }
 
-    ScanResultLayout scanResultLayout;
-
     @Override
     public void onCreate(Bundle icicle) {
-      super.onCreate(icicle);
+        super.onCreate(icicle);
 
-      Window window = getWindow();
-      window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-      setContentView(R.layout.zxing_capture);
-      buttonVerify = (Button) findViewById(R.id.button_verify);
-      buttonVerify.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-              if (camera_state == CAMERA_STATE.STOPPED){
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setContentView(R.layout.zxing_capture);
+        buttonVerify = (Button) findViewById(R.id.button_verify);
+        buttonVerify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (camera_state == CAMERA_STATE.STOPPED){
                   cameraManager.startPreview();
                   camera_state = CAMERA_STATE.RUNNING;
                   buttonVerify.setText("STOP");
                   buttonVerify.setBackgroundResource(R.drawable.btn_yellow);
-              }else{
+                }else{
                   cameraManager.stopPreview();
                   camera_state = CAMERA_STATE.STOPPED;
                   buttonVerify.setText("RESUME");
                   buttonVerify.setBackgroundResource(R.drawable.btn_confirm);
-              }
-          }
-      });
+                }
+            }
+        });
+        buttonPlusSeat = (LinearLayout) findViewById(R.id.zxing_capture_button_plus_seat);
+        buttonPlusSeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addSeat();
+            }
+        });
+        buttonMinusSeat = (LinearLayout) findViewById(R.id.zxing_capture_button_minus_seat);
+        buttonMinusSeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                removeSeat();
+            }
+        });
+        textViewVerifiedSeats = (TextView) findViewById(R.id.zxing_capture_textview_veriried_seats);
+        textViewSeats = (TextView) findViewById(R.id.zxing_capture_textview_seats);
 
         scanResultLayout = (ScanResultLayout) findViewById(R.id.zxing_capture_layout_scan_result);
-      event = getIntent().getParcelableExtra(EVENT);
+        event = getIntent().getParcelableExtra(EVENT);
+        textViewSeats.setText(String.format(getString(R.string.number_of_seats),event.getTotal_seats()));
 
-      hasSurface = false;
-      inactivityTimer = new InactivityTimer(this);
-      beepManager = new BeepManager(this);
-      ambientLightManager = new AmbientLightManager(this);
-      PreferenceManager.setDefaultValues(this, R.xml.zxing_preferences, false);
+        hasSurface = false;
+        inactivityTimer = new InactivityTimer(this);
+        beepManager = new BeepManager(this);
+        ambientLightManager = new AmbientLightManager(this);
+        PreferenceManager.setDefaultValues(this, R.xml.zxing_preferences, false);
     }
 
     @Override
     protected void onResume() {
-      super.onResume();
+        super.onResume();
+        updateSeatsTasks.start();
 
-      // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
-      // want to open the camera driver and measure the screen size if we're going to show the help on
-      // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
-      // off screen.
-      cameraManager = new CameraManager(getApplication());
+        // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
+        // want to open the camera driver and measure the screen size if we're going to show the help on
+        // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
+        // off screen.
+        cameraManager = new CameraManager(getApplication());
 
-      viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
-      viewfinderView.setCameraManager(cameraManager);
+        viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
+        viewfinderView.setCameraManager(cameraManager);
 
-      handler = null;
+        handler = null;
 
-      SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
-      SurfaceHolder surfaceHolder = surfaceView.getHolder();
-      if (hasSurface) {
-        // The activity was paused but not stopped, so the surface still exists. Therefore
-        // surfaceCreated() won't be called, so init the camera here.
-        initCamera(surfaceHolder);
-      } else {
-        // Install the callback and wait for surfaceCreated() to init the camera.
-        surfaceHolder.addCallback(this);
-        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-      }
+        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
+        SurfaceHolder surfaceHolder = surfaceView.getHolder();
+        if (hasSurface) {
+            // The activity was paused but not stopped, so the surface still exists. Therefore
+            // surfaceCreated() won't be called, so init the camera here.
+            initCamera(surfaceHolder);
+        } else {
+            // Install the callback and wait for surfaceCreated() to init the camera.
+            surfaceHolder.addCallback(this);
+            surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        }
 
-      beepManager.updatePrefs();
-      ambientLightManager.start(cameraManager);
+        beepManager.updatePrefs();
+        ambientLightManager.start(cameraManager);
 
-      inactivityTimer.onResume();
+        inactivityTimer.onResume();
 
-      Intent intent = getIntent();
+        Intent intent = getIntent();
 
-      decodeFormats = null;
-      characterSet = null;
+        decodeFormats = null;
+        characterSet = null;
 
-      if (intent != null) {
+        if (intent != null) {
 
         String action = intent.getAction();
 
         if (Intents.Scan.ACTION.equals(action)) {
 
-          // Scan the formats the intent requested, and return the result to the calling activity.
-          decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
-          decodeHints = DecodeHintManager.parseDecodeHints(intent);
+            // Scan the formats the intent requested, and return the result to the calling activity.
+            decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
+            decodeHints = DecodeHintManager.parseDecodeHints(intent);
 
-          if (intent.hasExtra(Intents.Scan.WIDTH) && intent.hasExtra(Intents.Scan.HEIGHT)) {
-            int width = intent.getIntExtra(Intents.Scan.WIDTH, 0);
-            int height = intent.getIntExtra(Intents.Scan.HEIGHT, 0);
-            if (width > 0 && height > 0) {
-              cameraManager.setManualFramingRect(width, height);
+            if (intent.hasExtra(Intents.Scan.WIDTH) && intent.hasExtra(Intents.Scan.HEIGHT)) {
+                int width = intent.getIntExtra(Intents.Scan.WIDTH, 0);
+                int height = intent.getIntExtra(Intents.Scan.HEIGHT, 0);
+                if (width > 0 && height > 0) {
+                    cameraManager.setManualFramingRect(width, height);
+                }
             }
-          }
         }
 
         characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
 
-      }
+        }
     }
 
     @Override
     protected void onPause() {
+        UPDATING_SEATS = false;
       if (handler != null) {
         handler.quitSynchronously();
         handler = null;
@@ -203,6 +256,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
         surfaceHolder.removeCallback(this);
       }
+
       super.onPause();
     }
 
@@ -256,7 +310,11 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      * @param barcode   A greyscale bitmap of the camera data which was decoded.
      */
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
-        scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
+        if (eventIsFull()){
+            scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.FULL);
+        }else{
+            new PassTask().execute(rawResult.getText());
+        }
         handler.sendEmptyMessage(R.id.restart_preview);
     }
 
@@ -264,6 +322,21 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         int usedSeats = Integer.parseInt(event.getUsed_seats());
         int availableSeats = Integer.parseInt(event.getAvailable_seats());
         return usedSeats == availableSeats;
+    }
+
+    private void addSeat(){
+        if (eventIsFull()){
+            scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
+        }else{
+            manualPasses++;
+            addManualPassTask = new AddManualPassTask();
+            addManualPassTask.execute();
+        }
+    }
+
+    private void removeSeat(){
+        minusManualPassTask = new MinusManualPassTask();
+        minusManualPassTask.execute();
     }
 
     private void initCamera(SurfaceHolder surfaceHolder) {
@@ -305,4 +378,92 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       viewfinderView.drawViewfinder();
     }
 
+    private class PassTask extends AsyncTask<String,Void,Pass>{
+
+        @Override
+        protected Pass doInBackground(String... voids) {
+            return TicktBoxAPI.getInstance().pass(voids[0],event.getEventTheater_id());
+        }
+
+        @Override
+        protected void onPostExecute(Pass pass) {
+            super.onPostExecute(pass);
+            if (pass == null){
+                scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.INVALID);
+            }else if (pass.getUsed().equals("0") && pass.getTheaterEventId().equals(event.getEventTheater_id())){
+                new VerifyTask().execute(currentPass);
+                scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
+            }else{
+                scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.USED);
+            }
+        }
+    }
+
+    private class VerifyTask extends AsyncTask<Pass,Void,Pass>{
+
+        @Override
+        protected Pass doInBackground(Pass... passes) {
+            return TicktBoxAPI.getInstance().verify(passes[0].getId(),passes[0].getGuests());
+        }
+    }
+
+    private class AddManualPassTask extends AsyncTask<Void,Void,JSONObject>{
+
+        @Override
+        protected JSONObject doInBackground(Void... voids) {
+            return TicktBoxAPI.getInstance().manualPass(event.getEventTheater_id(),"plus");
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject jsonObject) {
+            super.onPostExecute(jsonObject);
+            if (jsonObject !=  null){
+                event.setUsed_seats(jsonObject.optString("seats_used"));
+                textViewVerifiedSeats.setText(String.format(getString(R.string.verified_seats),event.getUsed_seats()));
+            }
+        }
+    }
+
+    private class MinusManualPassTask extends AsyncTask<Void,Void,JSONObject>{
+
+        @Override
+        protected JSONObject doInBackground(Void... voids) {
+            return TicktBoxAPI.getInstance().manualPass(event.getEventTheater_id(),"minus");
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject jsonObject) {
+            super.onPostExecute(jsonObject);
+            if (jsonObject !=  null){
+                event.setUsed_seats(jsonObject.optString("seats_used"));
+                textViewVerifiedSeats.setText(String.format(getString(R.string.verified_seats),event.getUsed_seats()));
+            }
+        }
+    }
+
+    private class UpdateSeatsTasks extends Thread{
+
+        @Override
+        public void run() {
+            try{
+                UPDATING_SEATS = true;
+                while (UPDATING_SEATS){
+//                    for (EventTheater evt : TicktBoxAPI.getInstance().theaterEvents()){
+//                        if (evt.getEventTheater_id().equals(event.getEventTheater_id())){
+//                            Message message = new Message();
+//                            Bundle bundle = new Bundle();
+//                            bundle.putParcelable(EVENT,evt);
+//                            message.setData(bundle);
+//                            mHandlerUpdateSeats.sendMessage(message);
+//                            break;
+//                        }
+//                    }
+                    sleep(UPDATING_TIME);
+                }
+            }catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
 }

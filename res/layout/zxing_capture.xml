@@ -34,14 +34,16 @@
         android:orientation="vertical"
         android:layout_marginLeft="15dp">
         <TextView
+            android:id="@+id/zxing_capture_textview_veriried_seats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 verified /"
+            android:text="@string/verified_seats"
             android:textSize="25sp"/>
         <TextView
+            android:id="@+id/zxing_capture_textview_seats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="750 seats"
+            android:text="@string/number_of_seats"
             android:textSize="15sp"/>
     </LinearLayout>
 
@@ -52,12 +54,14 @@
         android:layout_marginRight="20dp">
 
         <LinearLayout
+            android:id="@+id/zxing_capture_button_plus_seat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#FFFFFF"
             android:layout_margin="5dp">
 
             <ImageButton
+                android:clickable="false"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:src="@drawable/btn_add_ticket"
@@ -73,12 +77,14 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/zxing_capture_button_minus_seat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#FFFFFF"
             android:layout_margin="5dp">
 
             <ImageButton
+                android:clickable="false"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:src="@drawable/btn_remove_ticket"
