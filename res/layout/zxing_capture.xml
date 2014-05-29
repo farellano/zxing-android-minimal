@@ -19,8 +19,8 @@
              android:layout_height="fill_parent">
 
   <SurfaceView android:id="@+id/preview_view"
-               android:layout_width="fill_parent"
-               android:layout_height="fill_parent"/>
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"/>
 
   <com.google.zxing.client.android.ViewfinderView
       android:id="@+id/viewfinder_view"
@@ -136,5 +136,24 @@
                 android:background="@drawable/bg_back_button"/>
         </LinearLayout>
     </LinearLayout>
+
+    <com.google.zxing.views.ScanResultLayout
+        android:id="@+id/zxing_capture_layout_scan_result"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@android:color/holo_red_dark"
+        android:gravity="center"
+        android:alpha="0.8"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ico_full"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Error Message"/>
+    </com.google.zxing.views.ScanResultLayout>
 
 </FrameLayout>

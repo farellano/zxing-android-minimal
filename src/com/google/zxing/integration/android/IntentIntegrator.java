@@ -9,7 +9,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.Display;
+
+import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
+import com.ticktbox.ticktBoxAPI.api.models.EventTheater;
 
 import java.lang.CharSequence;import java.lang.Math;import java.lang.String;import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -72,6 +75,10 @@ public final class IntentIntegrator {
     public static final String ONE_D_CODE_TYPES = PRODUCT_CODE_TYPES + ",CODE_39,CODE_93,CODE_128";
     public static final String QR_CODE_TYPES = "QR_CODE";
     public static final String ALL_CODE_TYPES = null;
+
+    public interface GetEvent{
+
+    }
 
     private IntentIntegrator() {
     }
@@ -208,6 +215,7 @@ public final class IntentIntegrator {
     public static Intent createScanIntent(Context context) {
         Intent intent = new Intent(context, com.google.zxing.client.android.CaptureActivity.class);
         intent.setAction(Intents.Scan.ACTION);
+        intent.putExtra(CaptureActivity.EVENT,new EventTheater());
         return intent;
     }
 }
