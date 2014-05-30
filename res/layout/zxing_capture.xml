@@ -179,7 +179,7 @@
     <view
         class="com.google.zxing.widgets.MultiDirectionSlidingDrawer"
         xmlns:my="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/drawer"
+        android:id="@+id/capture_drawer"
         my:direction="topToBottom"
         android:layout_width="match_parent"
         android:layout_height="325dp"

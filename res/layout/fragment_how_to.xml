@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/fragment_how_to_tutorial_iv"
+        android:src="@drawable/tutorial_screen_1"
+        android:scaleType="fitXY"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/fragment_how_to_skip_btn"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:text="Skip Tutorial"
+        android:background="@drawable/bg_button_skip_tutorial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+</RelativeLayout>

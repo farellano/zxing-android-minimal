@@ -983,8 +983,9 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
     }
 
     private void initContentChilds(View mContent) {
-        mContent.findViewById(R.id.top_panel_1).setOnClickListener(this);
-        mContent.findViewById(R.id.top_panel_2).setOnClickListener(this);
+        mContent.findViewById(R.id.top_panel_capture_1).setOnClickListener(this);
+        mContent.findViewById(R.id.top_panel_capture_2).setOnClickListener(this);
+        mContent.findViewById(R.id.top_panel_capture_3).setOnClickListener(this);
     }
 
     public void setOnSlidingMenuOptionSelectedlistener( OnSlidingMenuOptionSelected slidingMenuListener)

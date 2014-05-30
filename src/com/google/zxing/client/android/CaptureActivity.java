@@ -20,7 +20,10 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.interfaces.OnSlidingMenuOptionSelected;
 import com.google.zxing.views.ScanResultLayout;
+import com.google.zxing.widgets.HowToDialogFragment;
+import com.google.zxing.widgets.MultiDirectionSlidingDrawer;
 import com.ticktbox.ticktBoxAPI.api.TicktBoxAPI;
 import com.ticktbox.ticktBoxAPI.api.models.EventTheater;
 import com.ticktbox.ticktBoxAPI.api.models.Pass;
@@ -59,9 +62,25 @@ import java.util.Map;
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
  */
-public final class CaptureActivity extends Activity implements SurfaceHolder.Callback {
+public final class CaptureActivity extends Activity implements SurfaceHolder.Callback, OnSlidingMenuOptionSelected {
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
+
+    @Override
+    public void onSlidingMenuOptionSelected(String optionTag) {
+        if (optionTag.equalsIgnoreCase("how_to")){
+            displayHowToDialog();
+        }else if (optionTag.equals("contact")){
+        }else if (optionTag.equals("log_out")){
+
+        }
+    }
+
+    private void displayHowToDialog() {
+        Bundle args = new Bundle();
+        HowToDialogFragment informationDialogFragment = (HowToDialogFragment) HowToDialogFragment.instantiate(this, HowToDialogFragment.class.getName(), args);
+        informationDialogFragment.showDialog(getFragmentManager());
+    }
 
     private enum CAMERA_STATE {
         STOPPED,
@@ -119,15 +138,15 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private AmbientLightManager ambientLightManager;
 
     ViewfinderView getViewfinderView() {
-      return viewfinderView;
+        return viewfinderView;
     }
 
     public Handler getHandler() {
-      return handler;
+        return handler;
     }
 
     CameraManager getCameraManager() {
-      return cameraManager;
+        return cameraManager;
     }
 
     @Override
@@ -142,15 +161,15 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             @Override
             public void onClick(View view) {
                 if (camera_state == CAMERA_STATE.STOPPED){
-                  cameraManager.startPreview();
-                  camera_state = CAMERA_STATE.RUNNING;
-                  buttonVerify.setText("STOP");
-                  buttonVerify.setBackgroundResource(R.drawable.btn_yellow);
+                    cameraManager.startPreview();
+                    camera_state = CAMERA_STATE.RUNNING;
+                    buttonVerify.setText("STOP");
+                    buttonVerify.setBackgroundResource(R.drawable.btn_yellow);
                 }else{
-                  cameraManager.stopPreview();
-                  camera_state = CAMERA_STATE.STOPPED;
-                  buttonVerify.setText("RESUME");
-                  buttonVerify.setBackgroundResource(R.drawable.btn_confirm);
+                    cameraManager.stopPreview();
+                    camera_state = CAMERA_STATE.STOPPED;
+                    buttonVerify.setText("RESUME");
+                    buttonVerify.setBackgroundResource(R.drawable.btn_confirm);
                 }
             }
         });
@@ -193,6 +212,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 finish();
             }
         });
+
+
+        MultiDirectionSlidingDrawer drawer = (MultiDirectionSlidingDrawer) findViewById(R.id.capture_drawer);
+        drawer.setOnSlidingMenuOptionSelectedlistener(this);
 
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
@@ -241,24 +264,24 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         if (intent != null) {
 
-        String action = intent.getAction();
+            String action = intent.getAction();
 
-        if (Intents.Scan.ACTION.equals(action)) {
+            if (Intents.Scan.ACTION.equals(action)) {
 
-            // Scan the formats the intent requested, and return the result to the calling activity.
-            decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
-            decodeHints = DecodeHintManager.parseDecodeHints(intent);
+                // Scan the formats the intent requested, and return the result to the calling activity.
+                decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
+                decodeHints = DecodeHintManager.parseDecodeHints(intent);
 
-            if (intent.hasExtra(Intents.Scan.WIDTH) && intent.hasExtra(Intents.Scan.HEIGHT)) {
-                int width = intent.getIntExtra(Intents.Scan.WIDTH, 0);
-                int height = intent.getIntExtra(Intents.Scan.HEIGHT, 0);
-                if (width > 0 && height > 0) {
-                    cameraManager.setManualFramingRect(width, height);
+                if (intent.hasExtra(Intents.Scan.WIDTH) && intent.hasExtra(Intents.Scan.HEIGHT)) {
+                    int width = intent.getIntExtra(Intents.Scan.WIDTH, 0);
+                    int height = intent.getIntExtra(Intents.Scan.HEIGHT, 0);
+                    if (width > 0 && height > 0) {
+                        cameraManager.setManualFramingRect(width, height);
+                    }
                 }
             }
-        }
 
-        characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
+            characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
 
         }
     }
@@ -266,58 +289,58 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     @Override
     protected void onPause() {
         UPDATING_SEATS = false;
-      if (handler != null) {
-        handler.quitSynchronously();
-        handler = null;
-      }
-      inactivityTimer.onPause();
-      ambientLightManager.stop();
-      cameraManager.closeDriver();
-      if (!hasSurface) {
-        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
-        SurfaceHolder surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.removeCallback(this);
-      }
+        if (handler != null) {
+            handler.quitSynchronously();
+            handler = null;
+        }
+        inactivityTimer.onPause();
+        ambientLightManager.stop();
+        cameraManager.closeDriver();
+        if (!hasSurface) {
+            SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
+            SurfaceHolder surfaceHolder = surfaceView.getHolder();
+            surfaceHolder.removeCallback(this);
+        }
 
-      super.onPause();
+        super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-      inactivityTimer.shutdown();
-      super.onDestroy();
+        inactivityTimer.shutdown();
+        super.onDestroy();
     }
 
     private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
-      // Bitmap isn't used yet -- will be used soon
-      if (handler == null) {
-        savedResultToShow = result;
-      } else {
-        if (result != null) {
-          savedResultToShow = result;
+        // Bitmap isn't used yet -- will be used soon
+        if (handler == null) {
+            savedResultToShow = result;
+        } else {
+            if (result != null) {
+                savedResultToShow = result;
+            }
+            if (savedResultToShow != null) {
+                Message message = Message.obtain(handler, R.id.decode_succeeded, savedResultToShow);
+                handler.sendMessage(message);
+            }
+            savedResultToShow = null;
         }
-        if (savedResultToShow != null) {
-          Message message = Message.obtain(handler, R.id.decode_succeeded, savedResultToShow);
-          handler.sendMessage(message);
-        }
-        savedResultToShow = null;
-      }
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-      if (holder == null) {
-        Log.e(TAG, "*** WARNING *** surfaceCreated() gave us a null surface!");
-      }
-      if (!hasSurface) {
-        hasSurface = true;
-        initCamera(holder);
-      }
+        if (holder == null) {
+            Log.e(TAG, "*** WARNING *** surfaceCreated() gave us a null surface!");
+        }
+        if (!hasSurface) {
+            hasSurface = true;
+            initCamera(holder);
+        }
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-      hasSurface = false;
+        hasSurface = false;
     }
 
     @Override
@@ -362,42 +385,42 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
 
     private void initCamera(SurfaceHolder surfaceHolder) {
-      if (surfaceHolder == null) {
-        throw new IllegalStateException("No SurfaceHolder provided");
-      }
-      if (cameraManager.isOpen()) {
-        Log.w(TAG, "initCamera() while already open -- late SurfaceView callback?");
-        return;
-      }
-      try {
-        cameraManager.openDriver(surfaceHolder);
-        // Creating the handler starts the preview, which can also throw a RuntimeException.
-        if (handler == null) {
-          handler = new CaptureActivityHandler(this, decodeFormats, decodeHints, characterSet, cameraManager);
+        if (surfaceHolder == null) {
+            throw new IllegalStateException("No SurfaceHolder provided");
         }
-        decodeOrStoreSavedBitmap(null, null);
-      } catch (IOException ioe) {
-        Log.w(TAG, ioe);
-        displayFrameworkBugMessageAndExit();
-      } catch (RuntimeException e) {
-        // Barcode Scanner has seen crashes in the wild of this variety:
-        // java.?lang.?RuntimeException: Fail to connect to camera service
-        Log.w(TAG, "Unexpected error initializing camera", e);
-        displayFrameworkBugMessageAndExit();
-      }
+        if (cameraManager.isOpen()) {
+            Log.w(TAG, "initCamera() while already open -- late SurfaceView callback?");
+            return;
+        }
+        try {
+            cameraManager.openDriver(surfaceHolder);
+            // Creating the handler starts the preview, which can also throw a RuntimeException.
+            if (handler == null) {
+                handler = new CaptureActivityHandler(this, decodeFormats, decodeHints, characterSet, cameraManager);
+            }
+            decodeOrStoreSavedBitmap(null, null);
+        } catch (IOException ioe) {
+            Log.w(TAG, ioe);
+            displayFrameworkBugMessageAndExit();
+        } catch (RuntimeException e) {
+            // Barcode Scanner has seen crashes in the wild of this variety:
+            // java.?lang.?RuntimeException: Fail to connect to camera service
+            Log.w(TAG, "Unexpected error initializing camera", e);
+            displayFrameworkBugMessageAndExit();
+        }
     }
 
     private void displayFrameworkBugMessageAndExit() {
-      AlertDialog.Builder builder = new AlertDialog.Builder(this);
-      builder.setTitle(getString(R.string.zxing_app_name));
-      builder.setMessage(getString(R.string.msg_camera_framework_bug));
-      builder.setPositiveButton(R.string.button_ok, new FinishListener(this));
-      builder.setOnCancelListener(new FinishListener(this));
-      builder.show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.zxing_app_name));
+        builder.setMessage(getString(R.string.msg_camera_framework_bug));
+        builder.setPositiveButton(R.string.button_ok, new FinishListener(this));
+        builder.setOnCancelListener(new FinishListener(this));
+        builder.show();
     }
 
     public void drawViewfinder() {
-      viewfinderView.drawViewfinder();
+        viewfinderView.drawViewfinder();
     }
 
     private class PassTask extends AsyncTask<String,Void,Pass>{

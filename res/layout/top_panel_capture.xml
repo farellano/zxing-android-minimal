@@ -23,7 +23,8 @@
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/top_panel_1"
+        android:id="@+id/top_panel_capture_1"
+        android:tag="how_to"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height_actionbar" >
 
@@ -43,7 +44,8 @@
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/top_panel_2"
+        android:id="@+id/top_panel_capture_2"
+        android:tag="contact"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height_actionbar" >
 
@@ -63,7 +65,8 @@
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/top_panel_3"
+        android:id="@+id/top_panel_capture_3"
+        android:tag="log_out"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height_actionbar" >
 

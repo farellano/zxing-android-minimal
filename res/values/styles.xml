@@ -7,6 +7,11 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="CustomDialog" parent="@android:style/Theme.Holo.Light" >
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
     <style name="button_capture_pass">
         <item name="android:textSize">24sp</item>
         <item name="android:padding">8dp</item>
