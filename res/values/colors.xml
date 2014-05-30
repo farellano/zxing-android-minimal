@@ -5,4 +5,7 @@
     <color name="color_full">#AD3224</color>
     <color name="color_pause">#1D191B</color>
     <color name="color_invalid">#FF0000</color>
+
+    <color name="text_blue">#3099D4</color>
+    <color name="text_red">#E85048</color>
 </resources>

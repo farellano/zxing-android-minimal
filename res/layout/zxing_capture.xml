@@ -35,7 +35,6 @@
         android:layout_height="65dp">
 
         <ImageView
-            android:src="@drawable/ico_ticktbox_logo"
             android:adjustViewBounds="true"
             android:layout_margin="5dp"
             android:padding="8dp"
@@ -45,34 +44,34 @@
     </LinearLayout>
 
 
-    <view
-        class="com.google.zxing.widgets.MultiDirectionSlidingDrawer"
-        xmlns:my="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/drawer"
-        my:direction="topToBottom"
-        android:layout_width="match_parent"
-        android:layout_height="260dp"
-        my:handle="@+id/handle"
-        my:content="@+id/content">
-        <include android:id="@id/content"
-            layout="@layout/top_panel_capture" />
-        <LinearLayout
-            android:id="@id/handle"
-            android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:background="@android:color/white"
-            android:paddingRight="8dp"
-            android:gravity="right"
-            >
+    <!-- <view
+         class="com.google.zxing.widgets.MultiDirectionSlidingDrawer"
+         xmlns:my="http://schemas.android.com/apk/res-auto"
+         android:id="@+id/drawer"
+         my:direction="topToBottom"
+         android:layout_width="match_parent"
+         android:layout_height="260dp"
+         my:handle="@+id/handle"
+         my:content="@+id/content">
+         <include android:id="@id/content"
+             layout="@layout/top_panel_capture" />
+         <LinearLayout
+             android:id="@id/handle"
+             android:layout_width="match_parent"
+             android:layout_height="65dp"
+             android:background="@android:color/white"
+             android:paddingRight="8dp"
+             android:gravity="right"
+             >
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="65dp"/>
+             <ImageView
+                 android:layout_width="wrap_content"
+                 android:layout_height="65dp"/>
 
-        </LinearLayout>
+         </LinearLayout>
 
-    </view>
-
+     </view>
+ -->
 
 
     <RelativeLayout
@@ -92,12 +91,14 @@
                 android:id="@+id/zxing_capture_textview_veriried_seats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:text="0 verified /"
                 android:textSize="25sp"/>
             <TextView
                 android:id="@+id/zxing_capture_textview_seats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:text="750 seats"
                 android:textSize="15sp"/>
         </LinearLayout>
@@ -107,26 +108,22 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:orientation="vertical"
-            android:layout_marginRight="20dp">
+            android:layout_marginRight="8dp">
 
             <LinearLayout
                 android:id="@+id/zxing_capture_button_plus_seat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_btn_capture_seats"
                 android:layout_margin="5dp">
 
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:src="@drawable/btn_add_ticket"
-                    android:background="@null"
-                    android:layout_gravity="center"/>
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="          1       "
+                    android:layout_width="85dp"
+                    android:layout_height="45dp"
+                    style="@style/button_capture_pass.blue"
+                    android:drawableLeft="@drawable/btn_add_ticket"
+                    android:text="2"
                     android:layout_gravity="center"/>
 
             </LinearLayout>
@@ -135,20 +132,16 @@
                 android:id="@+id/zxing_capture_button_minus_seat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_btn_capture_seats"
                 android:layout_margin="5dp">
 
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:src="@drawable/btn_remove_ticket"
-                    android:background="@null"
-                    android:layout_gravity="center"/>
-
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="          1       "
+                    style="@style/button_capture_pass.red"
+                    android:layout_width="85dp"
+                    android:layout_height="45dp"
+                    android:gravity="center"
+                    android:drawableLeft="@drawable/btn_remove_ticket"
+                    android:text="1"
                     android:layout_gravity="center"/>
 
             </LinearLayout>
@@ -168,6 +161,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/btn_confirm"
             android:text="VERIFY"
+            style="@style/TextViewCapture.White"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="5dp"
@@ -186,6 +180,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            style="@style/TextViewCapture"
             android:text="GO BACK"
             android:background="@drawable/bg_back_button"/>
 
@@ -193,6 +188,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            style="@style/TextViewCapture"
             android:text="I'M DONE"
             android:background="@drawable/bg_back_button"/>
     </LinearLayout>
@@ -215,5 +211,5 @@
             android:layout_height="wrap_content"
             android:text="Error Message"/>
     </com.google.zxing.views.ScanResultLayout>
-    
+
 </RelativeLayout>

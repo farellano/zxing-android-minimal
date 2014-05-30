@@ -6,4 +6,31 @@
         <item name="android:windowActionBar">false</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="button_capture_pass">
+        <item name="android:textSize">24sp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:gravity">center</item>
+
+    </style>
+
+    <style name="button_capture_pass.blue" parent="button_capture_pass">
+        <item name="android:textColor">@color/text_blue</item>
+    </style>
+
+    <style name="button_capture_pass.red" parent="button_capture_pass">
+        <item name="android:textColor">@color/text_red</item>
+    </style>
+
+    <style name="TextViewCapture">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">#3696d3</item>
+    </style>
+
+    <style name="TextViewCapture.White">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+
 </resources>
