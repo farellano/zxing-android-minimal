@@ -81,6 +81,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private LinearLayout buttonPlusSeat;
     private LinearLayout buttonMinusSeat;
 
+    private Button buttonImDone;
+    private Button buttonBack;
+
     private CAMERA_STATE camera_state = CAMERA_STATE.STOPPED;
     ScanResultLayout scanResultLayout;
 
@@ -92,7 +95,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            EventTheater updatedEvent = (EventTheater) msg.getData().getParcelable(EVENT);
+            EventTheater updatedEvent = msg.getData().getParcelable(EVENT);
             if (updatedEvent != null){
                 event = updatedEvent;
                 textViewVerifiedSeats.setText(String.format(getString(R.string.verified_seats),event.getUsed_seats()));
@@ -171,6 +174,24 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         scanResultLayout = (ScanResultLayout) findViewById(R.id.zxing_capture_layout_scan_result);
         event = getIntent().getParcelableExtra(EVENT);
         textViewSeats.setText(String.format(getString(R.string.number_of_seats),event.getTotal_seats()));
+
+        buttonImDone = (Button) findViewById(R.id.zxing_capture_button_im_done);
+        buttonImDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.putExtra(EVENT,event);
+                setResult(RESULT_OK,intent);
+                finish();
+            }
+        });
+        buttonBack = (Button) findViewById(R.id.zxing_capture_button_go_back);
+        buttonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setResult(RESULT_CANCELED);
+            }
+        });
 
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
@@ -404,6 +425,14 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         @Override
         protected Pass doInBackground(Pass... passes) {
             return TicktBoxAPI.getInstance().verify(passes[0].getId(),passes[0].getGuests());
+        }
+
+        @Override
+        protected void onPostExecute(Pass pass) {
+            super.onPostExecute(pass);
+            if (pass != null){
+                currentPass = pass;
+            }
         }
     }
 
