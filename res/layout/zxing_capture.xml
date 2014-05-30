@@ -183,6 +183,7 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/zxing_capture_button_go_back"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -190,6 +191,7 @@
             android:background="@drawable/bg_back_button"/>
 
         <Button
+            android:id="@+id/zxing_capture_button_im_done"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
