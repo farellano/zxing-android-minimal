@@ -8,4 +8,7 @@
 
     <color name="text_blue">#3099D4</color>
     <color name="text_red">#E85048</color>
+
+    <color name="semi_transparent_white">#ACFFFFFF</color>
+    <color name="semi_transparent_black">#78000000</color>
 </resources>

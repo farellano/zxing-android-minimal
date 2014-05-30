@@ -190,6 +190,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             @Override
             public void onClick(View view) {
                 setResult(RESULT_CANCELED);
+                finish();
             }
         });
 

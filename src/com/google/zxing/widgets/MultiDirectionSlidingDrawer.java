@@ -21,8 +21,12 @@ package com.google.zxing.widgets;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -37,6 +41,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import com.google.zxing.client.android.R;
 import com.google.zxing.interfaces.OnSlidingMenuOptionSelected;
+import com.google.zxing.utils.RenderUtils;
 
 
 public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnClickListener {
@@ -102,6 +107,7 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
     private final int						mVelocityUnits;
 
     private OnSlidingMenuOptionSelected slidingMenuListener;
+    private Bitmap blurBackground = null;
 
     @Override
     public void onClick(View v) {
@@ -218,6 +224,10 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
             mMaximumMinorVelocity = -mMaximumMinorVelocity;
         }
 
+
+        /*Start blur process*/
+        blurImage.execute();
+
         a.recycle();
         setAlwaysDrawnWithCacheEnabled( false );
     }
@@ -233,7 +243,29 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
         mContent = findViewById( mContentId );
         if ( mContent == null ) { throw new IllegalArgumentException( "The content attribute is must refer to an"
                 + " existing child." ); }
+
+
+        mContent.setBackground(getBlurBackground());
+
         mContent.setVisibility( View.GONE );
+    }
+
+    private AsyncTask<Void,Void,Bitmap> blurImage = new AsyncTask<Void, Void, Bitmap>() {
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            Bitmap inputBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.header);
+            Bitmap bitmap = RenderUtils.fastblur(inputBitmap,10);
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            blurBackground = bitmap;
+        }
+    };
+
+    private Drawable getBlurBackground() {
+        return new BitmapDrawable(getResources(),blurBackground);
     }
 
     @Override
