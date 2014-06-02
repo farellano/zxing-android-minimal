@@ -112,6 +112,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private static final int UPDATING_TIME = 3000;
     private boolean UPDATING_SEATS = false;
     private UpdateSeatsTasks updateSeatsTasks = new UpdateSeatsTasks();
+
     private Handler mHandlerUpdateSeats = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {

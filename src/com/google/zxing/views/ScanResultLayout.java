@@ -24,7 +24,7 @@ public class ScanResultLayout extends LinearLayout {
     }
 
     ImageView imageView;
-    TextView textView;
+    ZXFontView textView;
 
     Runnable autoHideRunnable = new Runnable() {
         @Override
@@ -54,28 +54,33 @@ public class ScanResultLayout extends LinearLayout {
     }
 
     public void setScanResult(SCAN_RESULT result){
+        setScanResult(result,null);
+    }
+
+    public void setScanResult(SCAN_RESULT result, Integer passCount){
         imageView = (ImageView) getChildAt(0);
-        textView = (TextView) getChildAt(1);
+        textView = (ZXFontView) getChildAt(1);
         switch (result){
             case VALID:
                 setBackgroundColor(getResources().getColor(R.color.color_verified));
                 imageView.setImageResource(R.drawable.ico_verified);
-                textView.setText("VERIFIED");
+                if (passCount != null)
+                    textView.setText(String.format("Verified \n%d seats",passCount));
                 break;
             case INVALID:
                 setBackgroundColor(getResources().getColor(R.color.color_invalid));
                 imageView.setImageResource(R.drawable.ico_used);
-                textView.setText("INVALID");
+                textView.setText("Invalid \nPass");
                 break;
             case USED:
                 setBackgroundColor(getResources().getColor(R.color.color_full));
                 imageView.setImageResource(R.drawable.ico_used);
-                textView.setText("USED");
+                textView.setText("Pass \nUsed");
                 break;
             case FULL:
                 setBackgroundColor(getResources().getColor(R.color.color_full));
                 imageView.setImageResource(R.drawable.ico_full);
-                textView.setText("FULL");
+                textView.setText("Event \nFull");
                 break;
         }
         this.setVisibility(View.VISIBLE);
