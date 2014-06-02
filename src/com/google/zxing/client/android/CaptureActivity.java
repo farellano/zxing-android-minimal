@@ -30,8 +30,11 @@ import com.ticktbox.ticktBoxAPI.api.models.Pass;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,6 +51,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -87,6 +91,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         RUNNING
     }
 
+    public static final String MANUAL_PASSES = "manual_passes";
     public static final String EVENT = "event";
     private EventTheater event;
 
@@ -106,6 +111,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private CAMERA_STATE camera_state = CAMERA_STATE.STOPPED;
     ScanResultLayout scanResultLayout;
 
+    PassTask passTask;
+
     // This is the interval time for update the available seats number.
     private static final int UPDATING_TIME = 3000;
     private boolean UPDATING_SEATS = false;
@@ -124,6 +131,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     private AddManualPassTask addManualPassTask;
     private MinusManualPassTask minusManualPassTask;
+
+    private SoundPool soundPool;
+    private int idAccept, idDeny;
 
     private CameraManager cameraManager;
     private CaptureActivityHandler handler;
@@ -161,12 +171,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             @Override
             public void onClick(View view) {
                 if (camera_state == CAMERA_STATE.STOPPED){
-                    cameraManager.startPreview();
                     camera_state = CAMERA_STATE.RUNNING;
                     buttonVerify.setText("STOP");
                     buttonVerify.setBackgroundResource(R.drawable.btn_yellow);
                 }else{
-                    cameraManager.stopPreview();
                     camera_state = CAMERA_STATE.STOPPED;
                     buttonVerify.setText("RESUME");
                     buttonVerify.setBackgroundResource(R.drawable.btn_confirm);
@@ -177,7 +185,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         buttonPlusSeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addSeat();
+                if (!eventIsFull())
+                    addSeat();
+                else
+                    scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.FULL);
             }
         });
         buttonMinusSeat = (LinearLayout) findViewById(R.id.zxing_capture_button_minus_seat);
@@ -200,6 +211,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.putExtra(EVENT,event);
+                intent.putExtra(MANUAL_PASSES,manualPasses);
                 setResult(RESULT_OK,intent);
                 finish();
             }
@@ -222,6 +234,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         beepManager = new BeepManager(this);
         ambientLightManager = new AmbientLightManager(this);
         PreferenceManager.setDefaultValues(this, R.xml.zxing_preferences, false);
+
+        soundPool = new SoundPool( 2, AudioManager.STREAM_MUSIC, 0);
+        idAccept    = soundPool.load(this, R.raw.accept, 0);
+        idDeny      = soundPool.load(this, R.raw.deny, 0);
     }
 
     @Override
@@ -355,10 +371,15 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      * @param barcode   A greyscale bitmap of the camera data which was decoded.
      */
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
-        if (eventIsFull()){
-            scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.FULL);
-        }else{
-            new PassTask().execute(rawResult.getText());
+        if (camera_state == CAMERA_STATE.RUNNING) {
+
+            if (eventIsFull()) {
+                scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.FULL);
+                playSound(idDeny);
+            } else if (passTask == null || passTask.getStatus() == AsyncTask.Status.FINISHED){
+                passTask = new PassTask();
+                passTask.execute(rawResult.getText());
+            }
         }
         handler.sendEmptyMessage(R.id.restart_preview);
     }
@@ -367,6 +388,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         int usedSeats = Integer.parseInt(event.getUsed_seats());
         int availableSeats = Integer.parseInt(event.getAvailable_seats());
         return usedSeats == availableSeats;
+    }
+
+    private void playSound(int idSound){
+        soundPool.play(idSound, 1, 1, 1, 0, 1);
     }
 
     private void addSeat(){
@@ -425,6 +450,15 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     private class PassTask extends AsyncTask<String,Void,Pass>{
 
+        ProgressDialog dialog = ProgressDialog.show(CaptureActivity.this, "",
+                "Verifying pass, please wait...", true);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog.show();
+        }
+
         @Override
         protected Pass doInBackground(String... voids) {
             return TicktBoxAPI.getInstance().pass(voids[0],event.getEventTheater_id());
@@ -433,13 +467,17 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         @Override
         protected void onPostExecute(Pass pass) {
             super.onPostExecute(pass);
+            dialog.dismiss();
             if (pass == null){
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.INVALID);
+                playSound(idDeny);
             }else if (pass.getUsed().equals("0") && pass.getTheaterEventId().equals(event.getEventTheater_id())){
                 new VerifyTask().execute(currentPass);
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
+                playSound(idAccept);
             }else{
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.USED);
+                playSound(idDeny);
             }
         }
     }
@@ -460,35 +498,35 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         }
     }
 
-    private class AddManualPassTask extends AsyncTask<Void,Void,JSONObject>{
+    private class AddManualPassTask extends AsyncTask<Void,Void,JSONArray>{
 
         @Override
-        protected JSONObject doInBackground(Void... voids) {
-            return TicktBoxAPI.getInstance().manualPass(event.getEventTheater_id(),"plus");
+        protected JSONArray doInBackground(Void... voids) {
+            return TicktBoxAPI.getInstance().manualPass(event.getEventTheater_id(), "plus");
         }
 
         @Override
-        protected void onPostExecute(JSONObject jsonObject) {
+        protected void onPostExecute(JSONArray jsonObject) {
             super.onPostExecute(jsonObject);
-            if (jsonObject !=  null){
-                event.setUsed_seats(jsonObject.optString("seats_used"));
+            if (jsonObject !=  null && jsonObject.length() > 0){
+                event.setUsed_seats(jsonObject.optJSONObject(0).optString("seats_used"));
                 textViewVerifiedSeats.setText(String.format(getString(R.string.verified_seats),event.getUsed_seats()));
             }
         }
     }
 
-    private class MinusManualPassTask extends AsyncTask<Void,Void,JSONObject>{
+    private class MinusManualPassTask extends AsyncTask<Void,Void,JSONArray>{
 
         @Override
-        protected JSONObject doInBackground(Void... voids) {
-            return TicktBoxAPI.getInstance().manualPass(event.getEventTheater_id(),"minus");
+        protected JSONArray doInBackground(Void... voids) {
+            return TicktBoxAPI.getInstance().manualPass(event.getEventTheater_id(), "minus");
         }
 
         @Override
-        protected void onPostExecute(JSONObject jsonObject) {
+        protected void onPostExecute(JSONArray jsonObject) {
             super.onPostExecute(jsonObject);
-            if (jsonObject !=  null){
-                event.setUsed_seats(jsonObject.optString("seats_used"));
+            if (jsonObject !=  null && jsonObject.length() > 0){
+                event.setUsed_seats(jsonObject.optJSONObject(0).optString("seats_used"));
                 textViewVerifiedSeats.setText(String.format(getString(R.string.verified_seats),event.getUsed_seats()));
             }
         }
@@ -501,16 +539,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             try{
                 UPDATING_SEATS = true;
                 while (UPDATING_SEATS){
-//                    for (EventTheater evt : TicktBoxAPI.getInstance().theaterEvents()){
-//                        if (evt.getEventTheater_id().equals(event.getEventTheater_id())){
-//                            Message message = new Message();
-//                            Bundle bundle = new Bundle();
-//                            bundle.putParcelable(EVENT,evt);
-//                            message.setData(bundle);
-//                            mHandlerUpdateSeats.sendMessage(message);
-//                            break;
-//                        }
-//                    }
+                    for (EventTheater evt : TicktBoxAPI.getInstance().theaterEvents()){
+                        if (evt.getEventTheater_id().equals(event.getEventTheater_id())){
+                            Message message = new Message();
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelable(EVENT,evt);
+                            message.setData(bundle);
+                            mHandlerUpdateSeats.sendMessage(message);
+                            break;
+                        }
+                    }
                     sleep(UPDATING_TIME);
                 }
             }catch (InterruptedException e) {

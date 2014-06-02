@@ -83,7 +83,7 @@
                     android:layout_height="45dp"
                     style="@style/button_capture_pass.blue"
                     android:drawableLeft="@drawable/btn_add_ticket"
-                    android:text="2"
+                    android:text="1"
                     android:layout_gravity="center"/>
 
             </LinearLayout>
