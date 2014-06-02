@@ -74,35 +74,35 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
     private boolean						mTracking;
     private boolean						mLocked;
 
-    private VelocityTracker				mVelocityTracker;
+    private VelocityTracker			mVelocityTracker;
 
-    private boolean						mInvert;
-    private boolean						mVertical;
-    private boolean						mExpanded;
-    private int								mBottomOffset;
-    private int								mTopOffset;
-    private int								mHandleHeight;
-    private int								mHandleWidth;
+    private boolean					mInvert;
+    private boolean					mVertical;
+    private boolean					mExpanded;
+    private int						mBottomOffset;
+    private int						mTopOffset;
+    private int						mHandleHeight;
+    private int						mHandleWidth;
 
-    private OnDrawerOpenListener		mOnDrawerOpenListener;
-    private OnDrawerCloseListener		mOnDrawerCloseListener;
+    private OnDrawerOpenListener	mOnDrawerOpenListener;
+    private OnDrawerCloseListener	mOnDrawerCloseListener;
     private OnDrawerScrollListener	mOnDrawerScrollListener;
 
     private final Handler				mHandler							= new SlidingHandler();
     private float							mAnimatedAcceleration;
     private float							mAnimatedVelocity;
-    private float							mAnimationPosition;
+    private float							  mAnimationPosition;
     private long							mAnimationLastTime;
     private long							mCurrentAnimationTime;
-    private int								mTouchDelta;
+    private int								 mTouchDelta;
     private boolean						mAnimating;
-    private boolean						mAllowSingleTap;
+    private boolean					 	mAllowSingleTap;
     private boolean						mAnimateOnClick;
 
-    private final int						mTapThreshold;
+    private final int				  		mTapThreshold;
     private final int						mMaximumTapVelocity;
     private int								mMaximumMinorVelocity;
-    private int								mMaximumMajorVelocity;
+    private int								 mMaximumMajorVelocity;
     private int								mMaximumAcceleration;
     private final int						mVelocityUnits;
 
@@ -245,8 +245,6 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
                 + " existing child." ); }
 
 
-        mContent.setBackground(getBlurBackground());
-
         mContent.setVisibility( View.GONE );
     }
 
@@ -254,18 +252,19 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
         @Override
         protected Bitmap doInBackground(Void... voids) {
             Bitmap inputBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.header);
-            Bitmap bitmap = RenderUtils.fastblur(inputBitmap,10);
+            Bitmap bitmap = RenderUtils.fastblur(inputBitmap,150);
             return bitmap;
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             blurBackground = bitmap;
+            mHandle.setBackground(getBlurBackground(bitmap));
         }
     };
 
-    private Drawable getBlurBackground() {
-        return new BitmapDrawable(getResources(),blurBackground);
+    private Drawable getBlurBackground(Bitmap bitmap) {
+        return new BitmapDrawable(getResources(),bitmap);
     }
 
     @Override
