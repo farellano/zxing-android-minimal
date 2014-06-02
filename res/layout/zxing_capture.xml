@@ -200,6 +200,7 @@
                 android:layout_height="@dimen/height_actionbar"/>
 
             <ImageView
+                android:id="@+id/handle_drawer_capture"
                 android:layout_gravity="right"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/height_actionbar"

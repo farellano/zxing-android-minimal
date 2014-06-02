@@ -46,22 +46,23 @@ import com.google.zxing.utils.RenderUtils;
 
 public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnClickListener {
 
-    public static final int				ORIENTATION_RTL		= 0;
-    public static final int				ORIENTATION_BTT		= 1;
-    public static final int				ORIENTATION_LTR		= 2;
-    public static final int				ORIENTATION_TTB		= 3;
+    public static final int		ORIENTATION_RTL		= 0;
+    public static final int		ORIENTATION_BTT		= 1;
+    public static final int		ORIENTATION_LTR		= 2;
+    public static final int		ORIENTATION_TTB		= 3;
 
-    private static final int			TAP_THRESHOLD					= 6;
-    private static final float			MAXIMUM_TAP_VELOCITY			= 100.0f;
-    private static final float			MAXIMUM_MINOR_VELOCITY		= 150.0f;
-    private static final float			MAXIMUM_MAJOR_VELOCITY		= 200.0f;
-    private static final float			MAXIMUM_ACCELERATION			= 2000.0f;
-    private static final int			VELOCITY_UNITS					= 1000;
-    private static final int			MSG_ANIMATE						= 1000;
-    private static final int			ANIMATION_FRAME_DURATION	= 1000 / 60;
+    private static final int	TAP_THRESHOLD					= 6;
 
-    private static final int			EXPANDED_FULL_OPEN			= -10001;
-    private static final int			COLLAPSED_FULL_CLOSED		= -10002;
+    private static final float	MAXIMUM_TAP_VELOCITY			= 100.0f;
+    private static final float	MAXIMUM_MINOR_VELOCITY		= 150.0f;
+    private static final float	MAXIMUM_MAJOR_VELOCITY		= 200.0f;
+    private static final float	MAXIMUM_ACCELERATION			= 2000.0f;
+    private static final int	VELOCITY_UNITS					= 1000;
+    private static final int	MSG_ANIMATE						= 1000;
+    private static final int	ANIMATION_FRAME_DURATION	= 1000 / 60;
+
+    private static final int	EXPANDED_FULL_OPEN			= -10001;
+    private static final int	COLLAPSED_FULL_CLOSED		= -10002;
 
     private final int						mHandleId;
     private final int						mContentId;

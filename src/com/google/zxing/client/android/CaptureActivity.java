@@ -45,6 +45,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -65,6 +66,7 @@ import java.util.Map;
 public final class CaptureActivity extends Activity implements SurfaceHolder.Callback, OnSlidingMenuOptionSelected {
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
+    private ImageView drawerHandle;
 
     @Override
     public void onSlidingMenuOptionSelected(String optionTag) {
@@ -216,6 +218,22 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         MultiDirectionSlidingDrawer drawer = (MultiDirectionSlidingDrawer) findViewById(R.id.capture_drawer);
         drawer.setOnSlidingMenuOptionSelectedlistener(this);
+
+        drawerHandle = (ImageView) drawer.findViewById(R.id.handle_drawer_capture);
+
+        drawer.setOnDrawerOpenListener(new MultiDirectionSlidingDrawer.OnDrawerOpenListener() {
+            @Override
+            public void onDrawerOpened() {
+                drawerHandle.setImageResource(R.drawable.ic_handle_white_close);
+            }
+        });
+
+        drawer.setOnDrawerCloseListener(new MultiDirectionSlidingDrawer.OnDrawerCloseListener() {
+            @Override
+            public void onDrawerClosed() {
+                drawerHandle.setImageResource(R.drawable.ic_handle_white);
+            }
+        });
 
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
