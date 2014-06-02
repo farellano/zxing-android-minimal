@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/top_panel_4"
+        android:id="@+id/top_panel_capture_0"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height_actionbar" >
 
@@ -19,6 +19,12 @@
             android:gravity="center_vertical"
             android:textSize="18sp"
             android:paddingLeft="10dp"/>
+
+        <View
+            android:layout_gravity="bottom"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
 
     </FrameLayout>
 
@@ -40,6 +46,11 @@
             android:gravity="center_vertical"
             android:textSize="18sp"
             android:paddingLeft="10dp"/>
+        <View
+            android:layout_gravity="bottom"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
 
     </FrameLayout>
 
@@ -61,6 +72,11 @@
             android:gravity="center_vertical"
             android:textSize="18sp"
             android:paddingLeft="10dp"/>
+        <View
+            android:layout_gravity="bottom"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
 
     </FrameLayout>
 
@@ -83,6 +99,11 @@
             android:gravity="center_vertical"
             android:textSize="18sp"
             android:paddingLeft="10dp"/>
+        <View
+            android:layout_gravity="bottom"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
 
     </FrameLayout>
 
