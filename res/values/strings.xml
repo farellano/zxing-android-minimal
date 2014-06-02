@@ -2,4 +2,11 @@
 <resources>
     <string name="number_of_seats">%s seats</string>
     <string name="verified_seats">%s verified /</string>
+
+
+    <string name="zx_font_architects_daughter">ArchitectsDaughter.ttf</string>
+    <string name="zx_font_museo_300">Museo300-Regular.otf</string>
+    <string name="zx_font_museo_700">Museo700-Regular.otf</string>
+    <string name="zx_font_museo_slab">Museo_Slab_500_2.otf</string>
+    <string name="zx_font_questrial">Questrial-Regular.otf</string>
 </resources>
