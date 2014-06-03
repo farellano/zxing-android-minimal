@@ -225,7 +225,6 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
             mMaximumMinorVelocity = -mMaximumMinorVelocity;
         }
 
-
         /*Start blur process*/
         blurImage.execute();
 
@@ -245,14 +244,13 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
         if ( mContent == null ) { throw new IllegalArgumentException( "The content attribute is must refer to an"
                 + " existing child." ); }
 
-
         mContent.setVisibility( View.GONE );
     }
 
     private AsyncTask<Void,Void,Bitmap> blurImage = new AsyncTask<Void, Void, Bitmap>() {
         @Override
         protected Bitmap doInBackground(Void... voids) {
-            Bitmap inputBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.header);
+            Bitmap inputBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.header_capture);
             Bitmap bitmap = RenderUtils.fastblur(inputBitmap,150);
             return bitmap;
         }
@@ -261,8 +259,16 @@ public class MultiDirectionSlidingDrawer extends ViewGroup implements View.OnCli
         protected void onPostExecute(Bitmap bitmap) {
             blurBackground = bitmap;
             mHandle.setBackground(getBlurBackground(bitmap));
+            setBackgroundForContent(getBlurBackground(bitmap));
         }
     };
+
+    private void setBackgroundForContent(Drawable blurBackground) {
+        mContent.findViewById(R.id.top_panel_capture_0).setBackground(blurBackground);
+        mContent.findViewById(R.id.top_panel_capture_1).setBackground(blurBackground);
+        mContent.findViewById(R.id.top_panel_capture_2).setBackground(blurBackground);
+        mContent.findViewById(R.id.top_panel_capture_3).setBackground(blurBackground);
+    }
 
     private Drawable getBlurBackground(Bitmap bitmap) {
         return new BitmapDrawable(getResources(),bitmap);
