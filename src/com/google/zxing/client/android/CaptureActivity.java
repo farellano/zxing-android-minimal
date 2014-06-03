@@ -391,7 +391,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      */
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
         if (camera_state == CAMERA_STATE.RUNNING) {
-
             if (eventIsFull()) {
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.FULL);
                 playSound(idDeny);
@@ -399,8 +398,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 passTask = new PassTask();
                 passTask.execute(rawResult.getText());
             }
+            handler.sendEmptyMessage(R.id.restart_preview);
         }
-        handler.sendEmptyMessage(R.id.restart_preview);
     }
 
     private boolean eventIsFull(){
@@ -491,7 +490,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.INVALID);
                 playSound(idDeny);
             }else if (pass.getUsed().equals("0") && pass.getTheaterEventId().equals(event.getEventTheater_id())){
-                new VerifyTask().execute(currentPass);
+                new VerifyTask().execute(pass);
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
                 playSound(idAccept);
             }else{
