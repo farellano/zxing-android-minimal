@@ -118,7 +118,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     // This is the interval time for update the available seats number.
     private static final int UPDATING_TIME = 3000;
     private boolean UPDATING_SEATS = false;
-    private UpdateSeatsTasks updateSeatsTasks = new UpdateSeatsTasks();
+    private UpdateSeatsTasks updateSeatsTasks;
 
     private Handler mHandlerUpdateSeats = new Handler(Looper.getMainLooper()){
         @Override
@@ -262,6 +262,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     @Override
     protected void onResume() {
         super.onResume();
+        updateSeatsTasks = new UpdateSeatsTasks();
         updateSeatsTasks.start();
 
         // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
@@ -324,6 +325,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     @Override
     protected void onPause() {
         UPDATING_SEATS = false;
+        updateSeatsTasks.interrupt();
         if (handler != null) {
             handler.quitSynchronously();
             handler = null;
