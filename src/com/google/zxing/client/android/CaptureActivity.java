@@ -93,6 +93,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         RUNNING
     }
 
+    public static final long DELAY_AFTER_SCAN = 2000;
+
     public static final String MANUAL_PASSES = "manual_passes";
     public static final String EVENT = "event";
     private EventTheater event;
@@ -401,7 +403,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 passTask = new PassTask();
                 passTask.execute(rawResult.getText());
             }
-            handler.sendEmptyMessage(R.id.restart_preview);
         }
     }
 
@@ -500,6 +501,13 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.USED);
                 playSound(idDeny);
             }
+            final Handler mHandler = new Handler();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    handler.sendEmptyMessage(R.id.restart_preview);
+                }
+            }, DELAY_AFTER_SCAN);
         }
     }
 
