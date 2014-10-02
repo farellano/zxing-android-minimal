@@ -20,7 +20,8 @@ public class ScanResultLayout extends LinearLayout {
         VALID,
         INVALID,
         USED,
-        FULL
+        FULL,
+        TURN_AWAY
     }
 
     ImageView imageView;
@@ -76,6 +77,11 @@ public class ScanResultLayout extends LinearLayout {
                 setBackgroundColor(getResources().getColor(R.color.color_full));
                 imageView.setImageResource(R.drawable.ico_full);
                 textView.setText("Event \nFull");
+                break;
+            case TURN_AWAY:
+                setBackgroundColor(getResources().getColor(R.color.color_turn_away));
+                imageView.setImageResource(R.drawable.ic_turn_away_added);
+                textView.setText("Turn\nAway\nAdded");
                 break;
         }
         this.setVisibility(View.VISIBLE);

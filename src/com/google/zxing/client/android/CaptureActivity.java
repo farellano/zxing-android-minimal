@@ -95,6 +95,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     public static final long DELAY_AFTER_SCAN = 2000;
 
+    public static final String TURNAWAYS = "turnaways";
     public static final String MANUAL_PASSES = "manual_passes";
     public static final String EVENT = "event";
     private EventTheater event;
@@ -102,6 +103,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     private Pass currentPass;
     private int manualPasses = 0;
+    private int turnAways = 0;
 
     private Button buttonVerify;
     private TextView textViewVerifiedSeats;
@@ -217,7 +219,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 Intent intent = new Intent();
                 intent.putExtra(EVENT,event);
                 intent.putExtra(MANUAL_PASSES,manualPasses);
-                setResult(RESULT_OK,intent);
+                intent.putExtra(TURNAWAYS,turnAways);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
@@ -396,10 +399,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
         inactivityTimer.onActivity();
         if (camera_state == CAMERA_STATE.RUNNING) {
-            if (eventIsFull()) {
-                scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.FULL);
-                playSound(idDeny);
-            } else if (passTask == null || passTask.getStatus() == AsyncTask.Status.FINISHED){
+            if (passTask == null || passTask.getStatus() == AsyncTask.Status.FINISHED){
                 passTask = new PassTask();
                 passTask.execute(rawResult.getText());
             }
@@ -494,9 +494,15 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.INVALID);
                 playSound(idDeny);
             }else if (pass.getUsed().equals("0") && pass.getTheaterEventId().equals(event.getEventTheater_id())){
-                new VerifyTask().execute(pass);
-                scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
-                playSound(idAccept);
+                if (eventIsFull()) {
+                    scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.TURN_AWAY);
+                    playSound(idDeny);
+                    turnAways += Integer.parseInt(pass.getGuests());
+                } else {
+                    new VerifyTask().execute(pass);
+                    scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
+                    playSound(idAccept);
+                }
             }else{
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.USED);
                 playSound(idDeny);

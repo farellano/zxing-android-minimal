@@ -3,6 +3,7 @@
     <color name="color_verified">#34AC88</color>
     <color name="color_used">#ECB916</color>
     <color name="color_full">#AD3224</color>
+    <color name="color_turn_away">#455467</color>
     <color name="color_pause">#1D191B</color>
     <color name="color_invalid">#FF0000</color>
 
