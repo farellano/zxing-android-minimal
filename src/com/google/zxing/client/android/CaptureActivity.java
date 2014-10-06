@@ -498,6 +498,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                     scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.TURN_AWAY);
                     playSound(idDeny);
                     turnAways += Integer.parseInt(pass.getGuests());
+                    new UpdateTurnAwayTask().execute(pass);
                 } else {
                     new VerifyTask().execute(pass);
                     scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
@@ -514,6 +515,15 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                     handler.sendEmptyMessage(R.id.restart_preview);
                 }
             }, DELAY_AFTER_SCAN);
+        }
+    }
+
+    private class UpdateTurnAwayTask extends AsyncTask<Pass,Void,Pass>{
+
+        @Override
+        protected Pass doInBackground(Pass... passes) {
+            TicktBoxAPI.getInstance().turnAways(passes[0].getId());
+            return null;
         }
     }
 
