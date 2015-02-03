@@ -494,7 +494,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.INVALID);
                 playSound(idDeny);
             }else if (pass.getUsed().equals("0") && pass.getTheaterEventId().equals(event.getEventTheater_id())){
-                if (eventIsFull()) {
+                if (eventIsFull() || ( Integer.parseInt(event.getUsed_seats()) + Integer.parseInt(pass.getGuests()) > Integer.parseInt(event.getTotal_seats()))) {
                     scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.TURN_AWAY);
                     playSound(idDeny);
                     turnAways += Integer.parseInt(pass.getGuests());
