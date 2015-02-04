@@ -584,13 +584,15 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             try{
                 UPDATING_SEATS = true;
                 while (UPDATING_SEATS){
-                    EventTheater eventTheater = TicktBoxAPI.getInstance().theaterEvent(event.getEventTheater_id());
-                    if (eventTheater != null){
-                        Message message = new Message();
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable(EVENT,eventTheater);
-                        message.setData(bundle);
-                        mHandlerUpdateSeats.sendMessage(message);
+                    if (event != null) {
+                        EventTheater eventTheater = TicktBoxAPI.getInstance().theaterEvent(event.getEventTheater_id());
+                        if (eventTheater != null) {
+                            Message message = new Message();
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelable(EVENT, eventTheater);
+                            message.setData(bundle);
+                            mHandlerUpdateSeats.sendMessage(message);
+                        }
                     }
 
                     sleep(UPDATING_TIME);
