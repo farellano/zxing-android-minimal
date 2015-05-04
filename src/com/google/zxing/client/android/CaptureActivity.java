@@ -16,6 +16,8 @@
 
 package com.google.zxing.client.android;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
@@ -25,6 +27,7 @@ import com.google.zxing.views.ScanResultLayout;
 import com.google.zxing.widgets.HowToDialogFragment;
 import com.google.zxing.widgets.MultiDirectionSlidingDrawer;
 import com.ticktbox.ticktBoxAPI.api.TicktBoxAPI;
+import com.ticktbox.ticktBoxAPI.api.TicktBoxApplication;
 import com.ticktbox.ticktBoxAPI.api.models.EventTheater;
 import com.ticktbox.ticktBoxAPI.api.models.Pass;
 
@@ -216,6 +219,14 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         buttonImDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Tracker t = ((TicktBoxApplication) CaptureActivity.this.getApplication()).getTracker(
+                        TicktBoxApplication.TrackerName.APP_TRACKER);
+
+                t.send(new HitBuilders.EventBuilder()
+                        .setCategory(getString(R.string.google_analytics_category_ui))
+                        .setAction(getString(R.string.google_analytics_action_tap))
+                        .setLabel(((Button)view).getText().toString())
+                        .build());
                 Intent intent = new Intent();
                 intent.putExtra(EVENT,event);
                 intent.putExtra(MANUAL_PASSES,manualPasses);
@@ -228,6 +239,14 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Tracker t = ((TicktBoxApplication) CaptureActivity.this.getApplication()).getTracker(
+                        TicktBoxApplication.TrackerName.APP_TRACKER);
+
+                t.send(new HitBuilders.EventBuilder()
+                        .setCategory(getString(R.string.google_analytics_category_ui))
+                        .setAction(getString(R.string.google_analytics_action_tap))
+                        .setLabel(((Button)view).getText().toString())
+                        .build());
                 setResult(RESULT_CANCELED);
                 finish();
             }
@@ -257,7 +276,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         inactivityTimer = new InactivityTimer(this);
         beepManager = new BeepManager(this);
         ambientLightManager = new AmbientLightManager(this);
-        PreferenceManager.setDefaultValues(this, R.xml.zxing_preferences, false);
+        //PreferenceManager.setDefaultValues(this, R.xml.zxing_preferences, false);
 
         soundPool = new SoundPool( 2, AudioManager.STREAM_MUSIC, 0);
         idAccept    = soundPool.load(this, R.raw.accept, 0);
@@ -325,6 +344,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
 
         }
+
+        // Get tracker.
+        Tracker t = ((TicktBoxApplication) this.getApplication()).getTracker(
+                TicktBoxApplication.TrackerName.APP_TRACKER);
+
+// Set screen name.
+        t.setScreenName("Verifying");
+
+// Send a screen view.
+        t.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override
