@@ -512,7 +512,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    handler.sendEmptyMessage(R.id.restart_preview);
+                    if (handler != null) {
+                        handler.sendEmptyMessage(R.id.restart_preview);
+                    }
                 }
             }, DELAY_AFTER_SCAN);
         }
@@ -584,15 +586,13 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             try{
                 UPDATING_SEATS = true;
                 while (UPDATING_SEATS){
-                    if (event != null) {
-                        EventTheater eventTheater = TicktBoxAPI.getInstance().theaterEvent(event.getEventTheater_id());
-                        if (eventTheater != null) {
-                            Message message = new Message();
-                            Bundle bundle = new Bundle();
-                            bundle.putParcelable(EVENT, eventTheater);
-                            message.setData(bundle);
-                            mHandlerUpdateSeats.sendMessage(message);
-                        }
+                    EventTheater eventTheater = TicktBoxAPI.getInstance().theaterEvent(event.getEventTheater_id());
+                    if (eventTheater != null){
+                        Message message = new Message();
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(EVENT,eventTheater);
+                        message.setData(bundle);
+                        mHandlerUpdateSeats.sendMessage(message);
                     }
 
                     sleep(UPDATING_TIME);
