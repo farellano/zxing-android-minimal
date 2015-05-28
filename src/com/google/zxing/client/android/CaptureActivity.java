@@ -436,6 +436,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
 
     private boolean eventIsFull(){
+        if (event.getUsed_seats().trim().equalsIgnoreCase("") || event.getTotal_seats().trim().equalsIgnoreCase(""))
+            return  false;
+
         int usedSeats = Integer.parseInt(event.getUsed_seats());
         int totalSeats = Integer.parseInt(event.getTotal_seats());
         return usedSeats == totalSeats;
