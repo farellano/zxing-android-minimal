@@ -98,15 +98,11 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     public static final long DELAY_AFTER_SCAN = 2000;
 
-    public static final String TURNAWAYS = "turnaways";
-    public static final String MANUAL_PASSES = "manual_passes";
     public static final String EVENT = "event";
     private EventTheater event;
 
 
     private Pass currentPass;
-    private int manualPasses = 0;
-    private int turnAways = 0;
 
     private Button buttonVerify;
     private TextView textViewVerifiedSeats;
@@ -195,10 +191,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         buttonPlusSeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!eventIsFull())
-                    addSeat();
-                else
-                    scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.FULL);
+                addSeat();
             }
         });
         buttonMinusSeat = (LinearLayout) findViewById(R.id.zxing_capture_button_minus_seat);
@@ -229,8 +222,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                         .build());
                 Intent intent = new Intent();
                 intent.putExtra(EVENT,event);
-                intent.putExtra(MANUAL_PASSES,manualPasses);
-                intent.putExtra(TURNAWAYS,turnAways);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -441,7 +432,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         int usedSeats = Integer.parseInt(event.getUsed_seats());
         int totalSeats = Integer.parseInt(event.getTotal_seats());
-        return usedSeats == totalSeats;
+        return usedSeats >= totalSeats;
     }
 
     private void playSound(int idSound){
@@ -450,9 +441,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     private void addSeat(){
         if (eventIsFull()){
-            scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
+            UpdateTurnAwayTask task = new UpdateTurnAwayTask(event, null);
+            task.execute();
+            scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.FULL);
         }else{
-            manualPasses++;
             addManualPassTask = new AddManualPassTask();
             addManualPassTask.execute();
         }
@@ -529,8 +521,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 if (eventIsFull() || ( Integer.parseInt(event.getUsed_seats()) + Integer.parseInt(pass.getGuests()) > Integer.parseInt(event.getTotal_seats()))) {
                     scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.TURN_AWAY);
                     playSound(idDeny);
-                    turnAways += Integer.parseInt(pass.getGuests());
-                    new UpdateTurnAwayTask().execute(pass);
+                    new UpdateTurnAwayTask(event, pass).execute();
                 } else {
                     new VerifyTask().execute(pass);
                     scanResultLayout.setScanResult(ScanResultLayout.SCAN_RESULT.VALID);
@@ -554,9 +545,17 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     private class UpdateTurnAwayTask extends AsyncTask<Pass,Void,Pass>{
 
+        EventTheater mEvent;
+        Pass mPass;
+
+        public UpdateTurnAwayTask(EventTheater event, Pass pass) {
+            mEvent = event;
+            mPass = pass;
+        }
+
         @Override
         protected Pass doInBackground(Pass... passes) {
-            TicktBoxAPI.getInstance().turnAways(passes[0].getId());
+            TicktBoxAPI.getInstance().turnAways(mEvent.getEventTheater_id(), "1", mEvent.getUsed_seats(), mPass != null ? mPass.getId() : "");
             return null;
         }
     }
